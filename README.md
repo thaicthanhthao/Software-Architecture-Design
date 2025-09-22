@@ -14,13 +14,12 @@ API Dịch vụ Tin tức cung cấp các chức năng để tạo, đọc, cậ
      "status": "ok",
      "cluster": "tên_cluster"
    }
-POST /news
+2. POST /news
 Tạo mới một bài tin tức.
-
 Yêu cầu Body:
 
 json
-Sao chép mã
+
 {
   "title": "Tiêu đề của bài viết",
   "summary": "Tóm tắt của bài viết",
@@ -31,18 +30,18 @@ Sao chép mã
 Phản hồi:
 
 json
-Sao chép mã
+
 {
   "id": "id_tin_tuc",
   "result": "created"
 }
-PUT /news/{id}
-Cập nhật một bài tin tức đã tồn tại.
 
+3. PUT /news/{id}
+Cập nhật một bài tin tức đã tồn tại.
 Yêu cầu Body:
 
 json
-Sao chép mã
+
 {
   "title": "Tiêu đề đã cập nhật",
   "summary": "Tóm tắt đã cập nhật",
@@ -53,18 +52,18 @@ Sao chép mã
 Phản hồi:
 
 json
-Sao chép mã
+
 {
   "id": "id_bài_tin",
   "result": "updated"
 }
-GET /news/{id}
+4. GET /news/{id}
 Lấy thông tin chi tiết của một bài tin tức theo ID.
 
 Phản hồi:
 
 json
-Sao chép mã
+
 {
   "id": "id_bài_tin",
   "title": "Tiêu đề bài viết",
@@ -73,31 +72,28 @@ Sao chép mã
   "category": "Danh mục bài viết",
   "published_at": "2025-09-01T10:00:00"
 }
-DELETE /news/{id}
+5. DELETE /news/{id}
 Xóa một bài tin tức theo ID.
 
 Phản hồi:
 
 json
-Sao chép mã
+
 {
   "deleted": "id_bài_tin"
 }
-GET /news
+
+6. GET /news
 Lấy danh sách các bài tin tức với khả năng lọc theo danh mục (tuỳ chọn).
-
 Tham số truy vấn:
-
 category: Lọc theo danh mục (tuỳ chọn).
-
 size: Số lượng bài tin mỗi lần trả về (mặc định: 50, tối đa: 200).
-
 from: Vị trí bắt đầu phân trang (mặc định: 0).
 
 Phản hồi:
 
 json
-Sao chép mã
+
 [
   {
     "id": "id_bài_tin",
@@ -110,13 +106,13 @@ Sao chép mã
     }
   }
 ]
-GET /news/counters
-Lấy số lượng bài tin theo từng danh mục và tổng số bài.
 
+7. GET /news/counters
+Lấy số lượng bài tin theo từng danh mục và tổng số bài.
 Phản hồi:
 
 json
-Sao chép mã
+
 {
   "total": 100,
   "by_category": {
@@ -125,23 +121,18 @@ Sao chép mã
     "Công nghệ": 50
   }
 }
-GET /search
+8. GET /search
 Tìm kiếm bài tin theo từ khoá.
-
 Tham số truy vấn:
-
 q: Từ khoá tìm kiếm (tuỳ chọn).
-
 category: Lọc theo danh mục (tuỳ chọn).
-
 size: Số lượng bài tin mỗi lần trả về (mặc định: 10).
-
 from: Vị trí bắt đầu phân trang (mặc định: 0).
 
 Phản hồi:
 
 json
-Sao chép mã
+
 {
   "total": 100,
   "hits": [
@@ -162,29 +153,23 @@ Xác thực
 API sử dụng xác thực Bearer Token. Để xác thực, bạn cần bao gồm token hợp lệ trong header Authorization cho mỗi yêu cầu.
 
 Ví dụ:
-
 bash
-Sao chép mã
 Authorization: Bearer <your_token>
+
 Các công nghệ sử dụng
 FastAPI: Framework web để xây dựng API.
-
 OpenSearch: Công cụ tìm kiếm để lập chỉ mục và truy vấn các bài tin.
-
 Pydantic: Kiểm tra dữ liệu cho các request và response.
-
 Docker: Công cụ container hóa cho ứng dụng.
 
 Cách chạy
 Clone kho mã nguồn:
 
 bash
-Sao chép mã
 git clone <repository_url>
 cd <repository_directory>
 Xây dựng và chạy container (Docker cần được cài đặt):
 
 bash
-Sao chép mã
 docker-compose up --build
 API sẽ có sẵn tại http://localhost:8080
