@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Tài liệu API Dịch vụ Tin tức
 
 ## Tổng quan
@@ -175,3 +176,6 @@ bash
 Sao chép mã
 docker-compose up --build
 API sẽ có sẵn tại http://localhost:8080.
+=======
+# Software-Architecture-Design
+>>>>>>> f8921541680610187bb658f5c82273c807cdd2bf
