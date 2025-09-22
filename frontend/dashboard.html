@@ -1,0 +1,876 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Dashboard • News</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+         :root {
+            --max: 1100px
+        }
+        
+        * {
+            box-sizing: border-box
+        }
+        
+        body {
+            font-family: system-ui, Segoe UI, Roboto, Arial;
+            margin: 0;
+            background: #f8fafc
+        }
+        
+        header {
+            background: #111827;
+            color: #fff;
+            padding: 16px
+        }
+        
+        header .inner {
+            max-width: var(--max);
+            margin: auto;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            justify-content: space-between
+        }
+        
+        header a {
+            color: #93c5fd;
+            text-decoration: none
+        }
+        
+        header a:hover {
+            text-decoration: underline
+        }
+        
+        .wrap {
+            max-width: var(--max);
+            margin: 20px auto;
+            padding: 0 16px 24px
+        }
+        
+        h2 {
+            margin: 14px 0
+        }
+        
+        .grid {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: 1fr
+        }
+        
+        @media(min-width:980px) {
+            .grid {
+                grid-template-columns: 1fr 1fr
+            }
+        }
+        
+        .card {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            background: #fff;
+            padding: 16px
+        }
+        
+        label {
+            display: block;
+            margin: 10px 0 6px;
+            font-weight: 600
+        }
+        
+        input,
+        textarea,
+        button {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font: inherit;
+            background: #fff
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical
+        }
+        
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, .2)
+        }
+        
+        button {
+            background: #111827;
+            color: #fff;
+            cursor: pointer
+        }
+        
+        button:hover {
+            opacity: .95
+        }
+        
+        .btn-danger {
+            background: #b91c1c
+        }
+        
+        .row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px
+        }
+        
+        .muted {
+            color: #6b7280
+        }
+        
+        .hide {
+            display: none!important
+        }
+        
+        .result {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            background: #fff;
+            padding: 14px;
+            margin: 12px 0
+        }
+        
+        .title a {
+            color: #1d4ed8;
+            text-decoration: none;
+            font-weight: 700
+        }
+        
+        .title a:hover {
+            text-decoration: underline
+        }
+        
+        .title a.visited {
+            color: #6b7280
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 999px;
+            background: #eef2ff;
+            color: #3730a3;
+            font-size: 12px
+        }
+        
+        .chips {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 6px 0 12px
+        }
+        
+        .chip {
+            display: inline-block;
+            padding: 6px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 20px;
+            background: #f3f4f6;
+            font-size: 14px;
+            cursor: pointer;
+            color: #111827;
+            width: auto;
+            min-width: unset
+        }
+        
+        .chip:hover {
+            background: #e5e7eb
+        }
+        
+        .chip.active {
+            background: #111827;
+            color: #fff;
+            border-color: #111827
+        }
+        
+        .cnt {
+            font-size: 12px;
+            opacity: .75;
+            margin-left: 4px
+        }
+        
+        .inline-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="inner">
+            <div><strong>News Dashboard</strong> <span id="who" class="badge"></span></div>
+            <nav><a href="#" id="btnLogout">Đăng xuất</a></nav>
+        </div>
+    </header>
+
+    <div class="wrap">
+        <div class="grid">
+            <!-- CRUD (ẩn với reader) -->
+            <section id="crud" class="card">
+                <h2>Quản lý tin</h2>
+                <div class="muted">Reporter/Admin có thể tạo, cập nhật, xoá bài viết.</div>
+
+                <label for="title">Tiêu đề</label>
+                <input id="title" placeholder="Tiêu đề">
+
+                <label for="summary">Mô tả ngắn</label>
+                <input id="summary" placeholder="Mô tả ngắn">
+
+                <label for="content">Nội dung</label>
+                <textarea id="content" placeholder="Nội dung"></textarea>
+
+                <label for="category">Danh mục</label>
+                <input id="category" placeholder="Ví dụ: Kinh tế">
+
+                <label for="published_at">Ngày đăng</label>
+                <input id="published_at" type="datetime-local">
+
+                <input id="editId" type="hidden">
+
+                <div class="row">
+                    <button id="btnCreate">Tạo tin</button>
+                    <button id="btnUpdate" class="hide">Cập nhật</button>
+                    <button id="btnCancelEdit" class="hide">Hủy chỉnh sửa</button>
+                    <button id="btnDeleteSelected" class="btn-danger hide">Xoá (bài đang chọn)</button>
+                </div>
+            </section>
+
+            <!-- Search / Filter -->
+            <section class="card">
+                <h2>Tìm kiếm</h2>
+
+                <!-- CHIPS: lọc theo danh mục (KHÔNG dính từ khoá) -->
+                <div id="chips" class="chips"></div>
+
+                <!-- SEARCH: theo từ khoá (KHÔNG dính danh mục) -->
+                <div class="row">
+                    <input id="q" placeholder="Từ khoá...">
+                    <button id="btnSearch">Tìm</button>
+                </div>
+
+                <div id="results"></div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        /* ===================== State & helpers ===================== */
+        var token = localStorage.getItem('token') || '';
+        var role = localStorage.getItem('role') || 'reader';
+
+        var NS = 'NEWSAPP_' + role.toUpperCase() + '_';
+        var LS_Q = NS + 'Q';
+        var LS_CAT = NS + 'CAT';
+        var LS_VISITED = NS + 'VISITED_IDS';
+
+        const CATEGORY_MAP = [{
+            slug: "",
+            name: "Tất cả"
+        }, {
+            slug: "the-gioi",
+            name: "Thế giới"
+        }, {
+            slug: "cong-nghe",
+            name: "Công nghệ"
+        }, {
+            slug: "giai-tri",
+            name: "Giải trí"
+        }, {
+            slug: "kinh-te",
+            name: "Kinh tế"
+        }, {
+            slug: "the-thao",
+            name: "Thể thao"
+        }, {
+            slug: "du-lich",
+            name: "Du lịch"
+        }, {
+            slug: "moi-truong",
+            name: "Môi trường"
+        }, {
+            slug: "khoa-hoc",
+            name: "Khoa học"
+        }, {
+            slug: "van-hoa",
+            name: "Văn hóa"
+        }, {
+            slug: "viet-nam",
+            name: "Việt Nam"
+        }, {
+            slug: "xe-hoi",
+            name: "Xe hơi"
+        }, ];
+
+        function slugToName(slug) {
+            const f = CATEGORY_MAP.find(c => c.slug === slug);
+            return f ? f.name : slug;
+        }
+
+        function nameToSlug(name) {
+            const f = CATEGORY_MAP.find(c => c.name === name);
+            return f ? f.slug : name;
+        }
+
+
+        function mustAuth() {
+            if (!token || token.length === 0) {
+                window.location.href = '/login.html';
+                return false;
+            }
+            return true;
+        }
+
+        function setHeaderAuth(extra) {
+            var h = {
+                'Content-Type': 'application/json'
+            };
+            if (extra && typeof extra === 'object') {
+                for (var k in extra) {
+                    if (Object.prototype.hasOwnProperty.call(extra, k)) h[k] = extra[k];
+                }
+            }
+            if (token && token.length > 0) h['Authorization'] = 'Bearer ' + token;
+            return h;
+        }
+
+        function toISO(dtLocal) {
+            if (!dtLocal) return null;
+            var d = new Date(dtLocal);
+
+            function pad(n) {
+                n = String(n);
+                return n.length < 2 ? ('0' + n) : n;
+            }
+            return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+        }
+
+        function asArrayHits(data) {
+            if (data && data.hits && Array.isArray(data.hits)) return data.hits;
+            if (data && data.hits && data.hits.hits && Array.isArray(data.hits.hits)) {
+                var list = [],
+                    arr = data.hits.hits;
+                for (var i = 0; i < arr.length; i++) {
+                    var x = arr[i];
+                    list.push({
+                        id: (x && x._id) ? x._id : null,
+                        score: (x && typeof x._score !== 'undefined') ? x._score : null,
+                        source: (x && x._source) ? x._source : null
+                    });
+                }
+                return list;
+            }
+            if (Array.isArray(data)) { // /news trả mảng plain
+                var mapped = [];
+                for (var j = 0; j < data.length; j++) {
+                    mapped.push({
+                        id: data[j].id || null,
+                        source: data[j].source || data[j], // FIX: lấy đúng source
+                        score: null
+                    });
+                }
+                return mapped;
+            }
+
+            return [];
+        }
+
+        function getVisitedSet() {
+            var raw = localStorage.getItem(LS_VISITED) || '[]';
+            try {
+                var arr = JSON.parse(raw);
+                if (Array.isArray(arr)) return new Set(arr);
+            } catch (e) {}
+            return new Set();
+        }
+
+        function saveVisitedSet(set) {
+            var arr = [];
+            set.forEach(function(x) {
+                arr.push(x);
+            });
+            localStorage.setItem(LS_VISITED, JSON.stringify(arr));
+        }
+
+        function escapeHtml(s) {
+            if (typeof s !== 'string') s = (s === null || typeof s === 'undefined') ? '' : String(s);
+            return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function showError(prefix, data, raw, status) {
+            var msg = '';
+            if (data && data.detail) msg = data.detail;
+            else if (data && data.message) msg = data.message;
+            else if (typeof raw === 'string' && raw.length > 0) msg = raw;
+            else msg = 'HTTP ' + status;
+            alert(prefix + ': ' + msg);
+        }
+
+        /* ===================== UI init ===================== */
+        (function init() {
+            if (!mustAuth()) return;
+            document.getElementById('who').textContent = role;
+
+            if (role === 'reader') {
+                var crud = document.getElementById('crud');
+                if (crud) crud.classList.add('hide');
+            }
+
+            var btnLogout = document.getElementById('btnLogout');
+            if (btnLogout) {
+                btnLogout.onclick = function(e) {
+                    if (e && e.preventDefault) e.preventDefault();
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('role');
+                    localStorage.removeItem(LS_Q);
+                    localStorage.removeItem(LS_CAT);
+                    localStorage.removeItem(LS_VISITED);
+                    window.location.href = '/login.html';
+                };
+            }
+
+            // CRUD
+            var bCreate = document.getElementById('btnCreate');
+            var bUpdate = document.getElementById('btnUpdate');
+            var bCancel = document.getElementById('btnCancelEdit');
+            var bDelSel = document.getElementById('btnDeleteSelected');
+            if (bCreate) bCreate.onclick = createNews;
+            if (bUpdate) bUpdate.onclick = updateNews;
+            if (bCancel) bCancel.onclick = clearForm;
+            if (bDelSel) bDelSel.onclick = deleteSelected;
+
+            // Search theo từ khoá (KHÔNG dính danh mục)
+            var bSearch = document.getElementById('btnSearch');
+            if (bSearch) bSearch.onclick = function() {
+                doKeywordSearch();
+            };
+
+            buildChips();
+            refreshCounters(); // đếm tổng theo DB
+
+            // Khôi phục trạng thái
+            var qSaved = localStorage.getItem(LS_Q) || '';
+            var cSaved = localStorage.getItem(LS_CAT) || "";
+            setActiveChip(cSaved);
+            var qInput = document.getElementById('q');
+            if (qInput) qInput.value = qSaved;
+
+            // Giữ đúng 1 bộ:
+            if (qSaved && qSaved.length > 0) doKeywordSearch();
+            else doCategoryFilter();
+
+        })();
+
+        /* ===================== Chips: lọc theo danh mục ===================== */
+        function buildChips() {
+            const holder = document.getElementById('chips');
+            holder.innerHTML = CATEGORY_MAP.map(function(c) {
+                return '<button type="button" class="chip" data-slug="' + c.slug + '">' +
+                    c.name + ' <span class="cnt" data-cnt="' + c.slug + '"></span>' +
+                    '</button>';
+            }).join("");
+
+            holder.querySelectorAll('.chip').forEach(function(btn) {
+                btn.onclick = function() {
+                    var slug = btn.getAttribute('data-slug');
+                    setActiveChip(slug);
+                    var qInput = document.getElementById('q');
+                    if (qInput) qInput.value = '';
+                    localStorage.setItem(LS_Q, '');
+                    doCategoryFilter();
+                };
+            });
+        }
+
+
+
+        function setActiveChip(slug) {
+            document.querySelectorAll('#chips .chip').forEach(c => {
+                c.classList.toggle('active', c.getAttribute('data-slug') === slug);
+            });
+            localStorage.setItem(LS_CAT, slug);
+        }
+
+        function getActiveCatSlug() {
+            const a = document.querySelector('#chips .chip.active');
+            return a ? a.getAttribute('data-slug') : "";
+        }
+
+
+        /* ===================== CRUD ===================== */
+        function fillFormFromSource(id, s) {
+            document.getElementById('title').value = (s && s.title) ? s.title : '';
+            document.getElementById('summary').value = (s && s.summary) ? s.summary : '';
+            document.getElementById('content').value = (s && s.content) ? s.content : '';
+            document.getElementById('category').value = (s && s.category) ? s.category : '';
+            document.getElementById('published_at').value = (s && s.published_at) ? String(s.published_at).slice(0, 16) : '';
+            document.getElementById('editId').value = id || '';
+            document.getElementById('btnUpdate').classList.remove('hide');
+            document.getElementById('btnCancelEdit').classList.remove('hide');
+            document.getElementById('btnDeleteSelected').classList.remove('hide');
+        }
+
+        function clearForm() {
+            document.getElementById('title').value = '';
+            document.getElementById('summary').value = '';
+            document.getElementById('content').value = '';
+            document.getElementById('category').value = '';
+            document.getElementById('published_at').value = '';
+            document.getElementById('editId').value = '';
+            document.getElementById('btnUpdate').classList.add('hide');
+            document.getElementById('btnCancelEdit').classList.add('hide');
+            document.getElementById('btnDeleteSelected').classList.add('hide');
+        }
+        async function createNews() {
+            if (role === 'reader') {
+                alert('Bạn không có quyền tạo tin.');
+                return;
+            }
+            var payload = {
+                title: document.getElementById('title').value,
+                summary: document.getElementById('summary').value,
+                content: document.getElementById('content').value,
+                category: document.getElementById('category').value,
+                published_at: toISO(document.getElementById('published_at').value)
+            };
+            try {
+                var r = await fetch('/news', {
+                    method: 'POST',
+                    headers: setHeaderAuth(),
+                    body: JSON.stringify(payload)
+                });
+                var data = null,
+                    raw = null;
+                try {
+                    data = await r.json();
+                } catch (e) {
+                    raw = await r.text();
+                }
+                if (!r.ok) {
+                    showError('Lỗi tạo tin', data, raw, r.status);
+                    return;
+                }
+                alert('Tạo tin OK: ' + (data && data.id ? data.id : ''));
+                clearForm();
+                doCategoryFilter(); // reload theo danh mục
+                refreshCounters();
+            } catch (e) {
+                alert('Lỗi tạo tin: ' + e.message);
+            }
+        }
+        async function updateNews() {
+            if (role === 'reader') {
+                alert('Bạn không có quyền.');
+                return;
+            }
+            var id = document.getElementById('editId').value.trim();
+            if (id.length === 0) {
+                alert('Chưa chọn bài để cập nhật');
+                return;
+            }
+            var payload = {
+                title: document.getElementById('title').value,
+                summary: document.getElementById('summary').value,
+                content: document.getElementById('content').value,
+                category: document.getElementById('category').value,
+                published_at: toISO(document.getElementById('published_at').value)
+            };
+            try {
+                var r = await fetch('/news/' + encodeURIComponent(id), {
+                    method: 'PUT',
+                    headers: setHeaderAuth(),
+                    body: JSON.stringify(payload)
+                });
+                var data = null,
+                    raw = null;
+                try {
+                    data = await r.json();
+                } catch (e) {
+                    raw = await r.text();
+                }
+                if (!r.ok) {
+                    showError('Lỗi cập nhật', data, raw, r.status);
+                    return;
+                }
+                alert('Cập nhật OK');
+                clearForm();
+                doCategoryFilter();
+                refreshCounters();
+            } catch (e) {
+                alert('Lỗi cập nhật: ' + e.message);
+            }
+        }
+        async function deleteSelected() {
+            if (role === 'reader') {
+                alert('Bạn không có quyền.');
+                return;
+            }
+            var id = document.getElementById('editId').value.trim();
+            if (id.length === 0) {
+                alert('Chưa chọn bài để xoá');
+                return;
+            }
+            if (!confirm('Xoá bài này?')) return;
+            try {
+                var r = await fetch('/news/' + encodeURIComponent(id), {
+                    method: 'DELETE',
+                    headers: setHeaderAuth()
+                });
+                var data = null,
+                    raw = null;
+                try {
+                    data = await r.json();
+                } catch (e) {
+                    raw = await r.text();
+                }
+                if (!r.ok) {
+                    showError('Lỗi xoá', data, raw, r.status);
+                    return;
+                }
+                alert('Đã xoá');
+                clearForm();
+                doCategoryFilter();
+                refreshCounters();
+            } catch (e) {
+                alert('Lỗi xoá: ' + e.message);
+            }
+        }
+
+        /* ===================== Tìm theo DANH MỤC (chỉ /news) ===================== */
+        function doCategoryFilter() {
+            const slug = getActiveCatSlug();
+            console.log("doCategoryFilter run, slug=", slug);
+            let url = '/news';
+            if (slug) {
+                const name = slugToName(slug);
+                url = '/news?category=' + encodeURIComponent(name);
+            }
+            console.log("fetch url:", url);
+
+            fetch(url)
+                .then(r => r.json())
+                .then(data => {
+                    console.log("data:", data);
+                    const hits = asArrayHits(data);
+                    renderResults(hits);
+                })
+                .catch(err => console.error("fetch error:", err));
+        }
+
+
+
+        /* ===================== Tìm theo TỪ KHOÁ (chỉ /search) ===================== */
+        async function doKeywordSearch() {
+            var qInput = document.getElementById('q');
+            var q = qInput ? qInput.value.trim() : '';
+            if (q.length === 0) { // rỗng thì hiển thị theo danh mục hiện tại
+                doCategoryFilter();
+                return;
+            }
+            localStorage.setItem(LS_Q, q);
+            try {
+                var r = await fetch('/search?q=' + encodeURIComponent(q));
+                var data = null,
+                    raw = null;
+                try {
+                    data = await r.json();
+                } catch (e) {
+                    raw = await r.text();
+                }
+                if (!r.ok) {
+                    showError('Lỗi tìm kiếm', data, raw, r.status);
+                    return;
+                }
+                var hits = asArrayHits(data);
+                renderResults(hits);
+            } catch (e) {
+                alert('Lỗi tìm kiếm: ' + e.message);
+            }
+        }
+
+        /* ===================== Render + actions ===================== */
+        function renderResults(hits) {
+            var el = document.getElementById('results');
+            if (!hits || !Array.isArray(hits) || hits.length === 0) {
+                el.innerHTML = '<div class="muted">Không có kết quả</div>';
+                return;
+            }
+            var visited = getVisitedSet();
+            var html = '';
+            for (var i = 0; i < hits.length; i++) {
+                var h = hits[i];
+                var s = null;
+                if (h && h.source) s = h.source;
+                else if (h && h._source) s = h._source;
+                if (!s) s = {};
+                var id = h && h.id ? h.id : (s && s.id ? s.id : '');
+                var ttl = s && s.title ? s.title : '';
+                var sum = s && s.summary ? s.summary : '';
+                var pub = s && s.published_at ? s.published_at : '';
+                var visitedClass = (id && visited.has(id)) ? 'visited' : '';
+                var manageBtns = (role !== 'reader') ?
+                    '<div class="inline-actions"><button type="button" data-edit="' + escapeHtml(id) + '">Sửa</button><button type="button" class="btn-danger" data-del="' + escapeHtml(id) + '">Xoá</button></div>' :
+                    '';
+
+                const rawCat = s && s.category ? s.category : ""; // có thể là "Du lịch"
+                const slug = nameToSlug(rawCat); // -> "du-lich"
+                const catName = slugToName(slug);
+                html += `
+                    <div class="result" data-id="${escapeHtml(id)}">
+                        <div class="title"><a class="${visitedClass}" href="news.html?id=${encodeURIComponent(id)}" data-view="${escapeHtml(id)}">${escapeHtml(ttl)}</a></div>
+                        <div class="muted">${escapeHtml(sum)}</div>
+                        <div style="margin-top:6px">
+                        <button type="button" class="badge" data-slug="${escapeHtml(slug)}">
+                            ${escapeHtml(catName)}
+                        </button>
+                        </div>
+                        <div class="muted" style="margin-top:6px">Published: ${escapeHtml(pub || '')}</div>
+                        ${manageBtns}
+                    </div>`;
+
+            }
+            el.innerHTML = html;
+
+            // mark visited
+            var links = el.querySelectorAll('a[data-view]');
+            for (var a = 0; a < links.length; a++) {
+                links[a].onclick = function() {
+                    var id = this.getAttribute('data-view');
+                    var vs = getVisitedSet();
+                    vs.add(id);
+                    saveVisitedSet(vs);
+                    this.classList.add('visited');
+                };
+            }
+            // bấm badge -> đổi danh mục và lọc danh mục
+            var catBtns = el.querySelectorAll('button[data-slug]');
+            for (var b = 0; b < catBtns.length; b++) {
+                catBtns[b].onclick = function() {
+                    var slug = this.getAttribute('data-slug') || "";
+                    setActiveChip(slug);
+                    var qInput = document.getElementById('q');
+                    if (qInput) qInput.value = '';
+                    localStorage.setItem(LS_Q, '');
+                    doCategoryFilter();
+                };
+            }
+
+            // edit/delete inline
+            if (role !== 'reader') {
+                var editBtns = el.querySelectorAll('button[data-edit]');
+                for (var e = 0; e < editBtns.length; e++) {
+                    editBtns[e].onclick = function() {
+                        var id = this.getAttribute('data-edit');
+                        var sSel = null;
+                        for (var k = 0; k < hits.length; k++) {
+                            var hh = hits[k];
+                            var ss = null;
+                            if (hh && hh.source) ss = hh.source;
+                            else if (hh && hh._source) ss = hh._source;
+                            if (!ss) ss = {};
+                            var iid = hh && hh.id ? hh.id : (ss && ss.id ? ss.id : '');
+                            if (iid === id) {
+                                sSel = ss;
+                                break;
+                            }
+                        }
+                        fillFormFromSource(id, sSel || {});
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
+                    };
+                }
+                var delBtns = el.querySelectorAll('button[data-del]');
+                for (var d = 0; d < delBtns.length; d++) {
+                    delBtns[d].onclick = async function() {
+                        var id = this.getAttribute('data-del');
+                        document.getElementById('editId').value = id;
+                        if (!confirm('Xoá bài này?')) return;
+                        try {
+                            var r = await fetch('/news/' + encodeURIComponent(id), {
+                                method: 'DELETE',
+                                headers: setHeaderAuth()
+                            });
+                            var data = null,
+                                raw = null;
+                            try {
+                                data = await r.json();
+                            } catch (e) {
+                                raw = await r.text();
+                            }
+                            if (!r.ok) {
+                                showError('Lỗi xoá', data, raw, r.status);
+                                return;
+                            }
+                            doCategoryFilter();
+                            refreshCounters();
+                        } catch (err) {
+                            alert('Lỗi xoá: ' + err.message);
+                        }
+                    };
+                }
+            }
+        }
+
+        /* ===================== Counter theo DB ===================== */
+        async function refreshCounters() {
+            try {
+                // Lấy tối đa 1000 bài để đếm
+                const r = await fetch('/news?size=1000');
+                if (!r.ok) return;
+
+                const data = await r.json();
+
+                // Chuẩn hoá về mảng các source thuần tuý
+                var list;
+                if (Array.isArray(data)) {
+                    // backend /news hiện trả [{id, source}] hoặc {…} plain
+                    list = data.map(function(x) {
+                        return (x && x.source) ? x.source : x;
+                    });
+                } else {
+                    // Có thể là dạng {hits:{hits:[{_source:…}]}}
+                    var hits = asArrayHits(data);
+                    list = hits.map(function(x) {
+                        return x && x.source ? x.source : {};
+                    });
+                }
+
+                // Đếm theo slug
+                var counts = {};
+                var total = 0;
+                for (var i = 0; i < list.length; i++) {
+                    var s = list[i] || {};
+                    var rawCat = s.category ? s.category : "";
+                    var slug = nameToSlug(rawCat); // ví dụ "Du lịch" -> "du-lich"
+                    counts[slug] = (counts[slug] || 0) + 1;
+                    total++;
+                }
+
+                // Ghi số vào các chip
+                var spans = document.querySelectorAll('#chips .cnt');
+                for (var j = 0; j < spans.length; j++) {
+                    var span = spans[j];
+                    var key = span.getAttribute('data-cnt'); // "" hoặc "du-lich", "the-gioi"...
+                    var num = (key === "") ? total : (counts[key] || 0);
+                    span.textContent = '(' + num + ')';
+                }
+            } catch (e) {
+                // im lặng nếu lỗi
+            }
+        }
+    </script>
+</body>
+
+</html>

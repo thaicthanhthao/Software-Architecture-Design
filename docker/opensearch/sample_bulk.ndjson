@@ -1,0 +1,4 @@
+{ "index": { "_index": "news", "_id": "1" } }
+{ "id": "1", "title": "OpenSearch 2.14 Released", "summary": "Phiên bản mới", "content": "Cải tiến hiệu suất và sửa lỗi.", "author_id": "2", "author_name": "Reporter", "category_id": "2", "category": "cong-nghe", "published_at": "2025-09-01T00:00:00Z" }
+{ "index": { "_index": "news", "_id": "2" } }
+{ "id": "2", "title": "Việt Nam vô địch AFF Cup", "summary": "Bóng đá Việt Nam", "content": "Đội tuyển Việt Nam đã chiến thắng 3-0 trong trận chung kết.", "author_id": "2", "author_name": "Reporter", "category_id": "1", "category": "the-thao", "published_at": "2025-09-10T00:00:00Z" }

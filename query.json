@@ -1,0 +1,1 @@
+{ "query": { "multi_match": { "query": "OpenSearch", "fields": ["title^3", "content"] } } }

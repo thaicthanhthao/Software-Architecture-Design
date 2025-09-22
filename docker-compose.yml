@@ -1,0 +1,101 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: news
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./scripts:/scripts
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  opensearch:
+    image: opensearchproject/opensearch:2.14.0
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
+      - DISABLE_SECURITY_PLUGIN=true   # Tắt security plugin
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    ports:
+      - "9200:9200"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200 >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    volumes:
+      - osdata:/usr/share/opensearch/data
+      - ./docker/opensearch/mapping.json:/usr/share/opensearch/mapping.json:ro
+      - ./docker/opensearch/opensearch.yml:/usr/share/opensearch/config/opensearch.yml:ro
+
+  api:
+    build: ./backend/api
+    environment:
+      POSTGRES_DSN: "dbname=news user=postgres password=postgres host=postgres port=5432"
+      REDIS_URL: "redis://redis:6379/0"
+      OPENSEARCH_URL: "http://opensearch:9200"
+      INDEX_NAME: "news"
+      INIT_DB: "1"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      opensearch:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+  indexer:
+    build: ./backend/indexer
+    environment:
+      POSTGRES_DSN: "dbname=news user=postgres password=postgres host=postgres port=5432"
+      REDIS_URL: "redis://redis:6379/0"
+      OPENSEARCH_URL: "http://opensearch:9200"
+      INDEX_NAME: "news"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      opensearch:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:alpine
+    depends_on:
+      - api
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro        # Mount cả folder frontend
+      - ./frontend/nginx.conf:/etc/nginx/nginx.conf:ro
+
+volumes:
+  pgdata:
+  osdata:

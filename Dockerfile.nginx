@@ -1,0 +1,8 @@
+# Dockerfile.nginx
+FROM nginx:alpine
+
+# Copy tất cả file frontend (html, css, js...) vào thư mục gốc nginx
+COPY frontend/ /usr/share/nginx/html/
+
+# Ghi đè nginx.conf của bạn
+COPY frontend/nginx.conf /etc/nginx/nginx.conf

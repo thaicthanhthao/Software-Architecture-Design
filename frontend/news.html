@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Chi tiết bài viết</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+        body {
+            font-family: system-ui, Segoe UI, Roboto, Arial;
+            margin: 0;
+            background: #f8fafc
+        }
+        
+        header {
+            background: #111827;
+            color: #fff;
+            padding: 16px
+        }
+        
+        header .inner {
+            max-width: 1000px;
+            margin: auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between
+        }
+        
+        header a {
+            color: #93c5fd;
+            text-decoration: none
+        }
+        
+        header a:hover {
+            text-decoration: underline
+        }
+        
+        .wrap {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 0 16px 24px;
+            background: #fff;
+            border-radius: 8px;
+        }
+        
+        h1 {
+            margin: 0 0 12px
+        }
+        
+        .muted {
+            color: #6b7280;
+            margin-top: 6px
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: #eef2ff;
+            color: #3730a3;
+            font-size: 12px;
+            margin-right: 6px
+        }
+        
+        button {
+            background: #111827;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 14px;
+            font: inherit;
+            cursor: pointer
+        }
+        
+        button:hover {
+            opacity: .95
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="inner">
+            <strong>Tin tức</strong>
+            <a href="#" id="btnBack">← Quay lại Dashboard</a>
+        </div>
+    </header>
+
+    <div class="wrap">
+        <h1 id="title">Đang tải...</h1>
+        <div id="summary" class="muted"></div>
+        <div style="margin:10px 0"><span id="category" class="badge"></span></div>
+        <div id="published" class="muted"></div>
+        <hr/>
+        <div id="content"></div>
+    </div>
+
+    <script>
+        var email = localStorage.getItem('email') || '';
+
+        function accountKey(suffix) {
+            var base = email && email.length > 0 ? email : 'anon';
+            return 'newsapp:' + base + ':' + suffix;
+        }
+
+        function getQueryParam(name) {
+            var params = new URLSearchParams(window.location.search);
+            return params.get(name);
+        }
+
+        function getVisitedSet() {
+            var key = accountKey('visited');
+            var txt = localStorage.getItem(key) || '[]';
+            var arr = [];
+            try {
+                arr = JSON.parse(txt);
+            } catch (e) {
+                arr = [];
+            }
+            var set = {};
+            for (var i = 0; i < arr.length; i++) set[arr[i]] = true;
+            return {
+                key: key,
+                map: set
+            };
+        }
+
+        function saveVisitedSet(v) {
+            var arr = [];
+            for (var id in v.map)
+                if (Object.prototype.hasOwnProperty.call(v.map, id) && v.map[id]) arr.push(id);
+            localStorage.setItem(v.key, JSON.stringify(arr));
+        }
+
+        async function loadOne(id) {
+            try {
+                var r = await fetch('/news/' + encodeURIComponent(id));
+                var data = null,
+                    raw = null;
+                try {
+                    data = await r.json();
+                } catch (e) {
+                    raw = await r.text();
+                }
+                if (!r.ok) {
+                    alert('Lỗi tải bài: ' + (data && (data.detail || data.message) ? (data.detail || data.message) : raw || r.status));
+                    return;
+                }
+                document.getElementById('title').textContent = data && data.title ? data.title : '(không có tiêu đề)';
+                document.getElementById('summary').textContent = data && data.summary ? data.summary : '';
+                document.getElementById('category').textContent = data && data.category ? data.category : '';
+                document.getElementById('published').textContent = data && data.published_at ? ('Published: ' + data.published_at) : '';
+                document.getElementById('content').textContent = data && data.content ? data.content : '';
+            } catch (e) {
+                alert('Lỗi: ' + e.message);
+            }
+        }
+
+        (function init() {
+            var id = getQueryParam('id');
+            if (!id) {
+                alert('Thiếu id');
+                return;
+            }
+            // đánh dấu visited cho tài khoản hiện tại
+            var visited = getVisitedSet();
+            visited.map[id] = true;
+            saveVisitedSet(visited);
+            loadOne(id);
+
+            // nút quay lại
+            document.getElementById('btnBack').onclick = function(ev) {
+                ev.preventDefault();
+                // quay lại dashboard và giữ từ khoá cũ
+                window.location.href = '/dashboard.html';
+            };
+        })();
+    </script>
+</body>
+
+</html>

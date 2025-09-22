@@ -1,0 +1,163 @@
+<!-- frontend/login.html -->
+<!doctype html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Đăng nhập • News</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+        body {
+            font-family: system-ui, Segoe UI, Roboto, Arial;
+            background: #f8fafc;
+            margin: 0
+        }
+        
+        .wrap {
+            max-width: 420px;
+            margin: 50px auto;
+            padding: 24px;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px
+        }
+        
+        h1 {
+            margin: 0 0 12px
+        }
+        
+        label {
+            display: block;
+            margin: 10px 0 6px;
+            font-weight: 600
+        }
+        
+        input,
+        button {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font: inherit
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, .2)
+        }
+        
+        button {
+            margin-top: 12px;
+            background: #111827;
+            color: #fff;
+            cursor: pointer
+        }
+        
+        .muted {
+            color: #6b7280
+        }
+        
+        a {
+            color: #2563eb;
+            text-decoration: none
+        }
+        
+        a:hover {
+            text-decoration: underline
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <h1>Đăng nhập</h1>
+        <div class="muted">Dùng tài khoản đã đăng ký để vào Dashboard.</div>
+
+        <label for="email">Email</label>
+        <input id="email" type="email" placeholder="you@example.com" />
+
+        <label for="password">Mật khẩu</label>
+        <input id="password" type="password" placeholder="••••••••" />
+
+        <button id="btnLogin">Đăng nhập</button>
+        <p class="muted" style="margin-top:12px">Chưa có tài khoản? <a href="/register.html">Đăng ký</a></p>
+    </div>
+
+    <script>
+        function b64urlToB64(s) {
+            if (!s) return "";
+            s = s.replace(/-/g, "+").replace(/_/g, "/");
+            while (s.length % 4 !== 0) s += "=";
+            return s;
+        }
+
+        function decodeJWTPayload(token) {
+            try {
+                var parts = token.split(".");
+                if (parts.length < 2) return {};
+                var payload = parts[1];
+                var json = atob(b64urlToB64(payload));
+                return JSON.parse(json);
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function inferRoleFromToken(token, fallback) {
+            var p = decodeJWTPayload(token);
+            if (p && p.role) return p.role;
+            if (p && p.roles && p.roles.length > 0) return p.roles[0];
+            if (p && p.scope) return p.scope;
+            return fallback || "reader";
+        }
+
+        function setAuth(token, role) {
+            localStorage.setItem("token", token || "");
+            localStorage.setItem("role", role || "reader");
+        }
+
+        async function login() {
+            var email = document.getElementById("email").value.trim();
+            var password = document.getElementById("password").value;
+            if (email.length === 0 || password.length === 0) {
+                alert("Nhập email và mật khẩu");
+                return;
+            }
+
+            try {
+                var r = await fetch("/auth/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+                var data = null,
+                    raw = null;
+                try {
+                    data = await r.json();
+                } catch (e) {
+                    raw = await r.text();
+                }
+                if (!r.ok) {
+                    var msg = (data && (data.detail || data.message)) ? (data.detail || data.message) : (raw ? raw : ("HTTP " + r.status));
+                    alert(msg);
+                    return;
+                }
+                var token = (data && data.access_token) ? data.access_token : "";
+                var role = inferRoleFromToken(token, "reader");
+                setAuth(token, role);
+                window.location.href = "/dashboard.html";
+            } catch (e) {
+                alert("Lỗi đăng nhập: " + e.message);
+            }
+        }
+        document.getElementById("btnLogin").onclick = login;
+    </script>
+</body>
+
+</html>
