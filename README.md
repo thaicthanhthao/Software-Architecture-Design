@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Tài liệu API Dịch vụ Tin tức
 
 ## Tổng quan
@@ -6,16 +5,16 @@ API Dịch vụ Tin tức cung cấp các chức năng để tạo, đọc, cậ
 
 ## Các Endpoint API
 
-1. GET /health
-Kiểm tra trạng thái của API và OpenSearch.
+1. **GET /health**
+   Kiểm tra trạng thái của API và OpenSearch.
 
-Phản hồi:
-```json
-{
-  "status": "ok",
-  "cluster": "tên_cluster"
-}
-2. POST /news
+   **Phản hồi:**
+   ```json
+   {
+     "status": "ok",
+     "cluster": "tên_cluster"
+   }
+POST /news
 Tạo mới một bài tin tức.
 
 Yêu cầu Body:
@@ -37,7 +36,7 @@ Sao chép mã
   "id": "id_tin_tuc",
   "result": "created"
 }
-3. PUT /news/{id}
+PUT /news/{id}
 Cập nhật một bài tin tức đã tồn tại.
 
 Yêu cầu Body:
@@ -59,7 +58,7 @@ Sao chép mã
   "id": "id_bài_tin",
   "result": "updated"
 }
-4. GET /news/{id}
+GET /news/{id}
 Lấy thông tin chi tiết của một bài tin tức theo ID.
 
 Phản hồi:
@@ -74,7 +73,7 @@ Sao chép mã
   "category": "Danh mục bài viết",
   "published_at": "2025-09-01T10:00:00"
 }
-5. DELETE /news/{id}
+DELETE /news/{id}
 Xóa một bài tin tức theo ID.
 
 Phản hồi:
@@ -84,12 +83,17 @@ Sao chép mã
 {
   "deleted": "id_bài_tin"
 }
-6. GET /news
+GET /news
 Lấy danh sách các bài tin tức với khả năng lọc theo danh mục (tuỳ chọn).
+
 Tham số truy vấn:
+
 category: Lọc theo danh mục (tuỳ chọn).
+
 size: Số lượng bài tin mỗi lần trả về (mặc định: 50, tối đa: 200).
+
 from: Vị trí bắt đầu phân trang (mặc định: 0).
+
 Phản hồi:
 
 json
@@ -106,7 +110,7 @@ Sao chép mã
     }
   }
 ]
-7. GET /news/counters
+GET /news/counters
 Lấy số lượng bài tin theo từng danh mục và tổng số bài.
 
 Phản hồi:
@@ -121,14 +125,19 @@ Sao chép mã
     "Công nghệ": 50
   }
 }
-8. GET /search
+GET /search
 Tìm kiếm bài tin theo từ khoá.
 
 Tham số truy vấn:
+
 q: Từ khoá tìm kiếm (tuỳ chọn).
+
 category: Lọc theo danh mục (tuỳ chọn).
+
 size: Số lượng bài tin mỗi lần trả về (mặc định: 10).
+
 from: Vị trí bắt đầu phân trang (mặc định: 0).
+
 Phản hồi:
 
 json
@@ -159,8 +168,11 @@ Sao chép mã
 Authorization: Bearer <your_token>
 Các công nghệ sử dụng
 FastAPI: Framework web để xây dựng API.
+
 OpenSearch: Công cụ tìm kiếm để lập chỉ mục và truy vấn các bài tin.
+
 Pydantic: Kiểm tra dữ liệu cho các request và response.
+
 Docker: Công cụ container hóa cho ứng dụng.
 
 Cách chạy
@@ -175,7 +187,4 @@ Xây dựng và chạy container (Docker cần được cài đặt):
 bash
 Sao chép mã
 docker-compose up --build
-API sẽ có sẵn tại http://localhost:8080.
-=======
-# Software-Architecture-Design
->>>>>>> f8921541680610187bb658f5c82273c807cdd2bf
+API sẽ có sẵn tại http://localhost:8080
